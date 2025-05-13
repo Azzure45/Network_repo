@@ -67,7 +67,6 @@ int main(void){
     }
 
     cout << "Connected successfully\n";
-    // send(client_fd, buffer, sizeof(char) * sizeof(buffer), 0);
     while(true){
         int ipt = 0;
         cout << "Write a integer from 1-4 for that respective scenario\n";
@@ -81,7 +80,7 @@ int main(void){
             c->send_msg("SEND_URGENT_REQUEST", 0);
             c->send_msg("U", MSG_OOB);
             c->read_msg();
-            
+
             c->send_msg("trailing", 0);
             c->read_msg();
             break;
