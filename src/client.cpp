@@ -23,7 +23,7 @@ int main(void){
     memset(&client_fd, 0, sizeof(client_fd));
     client_addr.sin_family = AF_INET;
     client_addr.sin_port = htons(8080);
-    inet_pton(AF_INET, "172.168.1.0", &client_addr.sin_addr);
+    inet_pton(AF_INET, "172.16.217.188", &client_addr.sin_addr);
 
     int status = bind(client_fd, (struct sockaddr *)&client_addr, sizeof(client_addr));
     //do some error check
