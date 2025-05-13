@@ -52,4 +52,14 @@ int main(void){
         cerr << "Failed to bind socket\n";
         exit(3);
     }
+
+    if(listen(s->server_fd, 1) < 0){
+        cerr << "Failed to listen\n";
+        exit(4);
+    }
+    cout << "Listening on port: " << port << "...\n";
+
+    while(true){
+        
+    }
 }
