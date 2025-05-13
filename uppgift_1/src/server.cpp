@@ -71,7 +71,7 @@ int main(void){
             }
         }
         else{
-            int read_byte = recv(s->server_fd, buffer, BUFFER_SIZE, 0);
+            int read_byte = recv(s->server_fd, &buffer, BUFFER_SIZE, 0);
             if(read_byte < 0){
                 cerr << "Error read msg: " << read_byte << "\n";
                 continue;
