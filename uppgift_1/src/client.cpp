@@ -12,6 +12,7 @@ const char ip[] = "127.0.0.1";
 
 using std::cerr;
 using std::cout;
+using std::cin;
 
 int main(void){
     int client_fd = socket(AF_INET, SOCK_STREAM, 0);
@@ -35,11 +36,27 @@ int main(void){
 
     cout << "Connected successfully\n";
 
-    char buffer[BUFFER_SIZE] = "AnSa\n";
+    char buffer[BUFFER_SIZE] = {0};
     // send(client_fd, buffer, sizeof(char) * sizeof(buffer), 0);
     while(true){
-        // send(client_fd, buffer, sizeof(char) * sizeof(buffer), 0);
-        ;;
+        int ipt = 0;
+        cout << "Write a integer from 1-4 for that respective scenario\n";
+        cin >> ipt;
+        switch (ipt){
+        case 1:
+            memset(&buffer, sizeof(buffer), 0);
+            strcpy(buffer, "Hello Mario\n");
+            send(client_fd, buffer, sizeof(char) * sizeof(buffer), 0);
+            break;
+        
+        default:
+            memset(&buffer, sizeof(buffer), 0);
+            strcpy(buffer, "NORMAL_DATA:Hello");
+            send(client_fd, buffer, sizeof(char) * sizeof(buffer), 0);
+        }
+        read(client_fd, &buffer, sizeof(buffer));
+        cout << buffer << "\n";
+        // sleep(1);
     }
 
     close(client_fd);

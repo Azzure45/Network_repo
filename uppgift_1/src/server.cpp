@@ -1,4 +1,6 @@
 #include <iostream>
+#include <vector>
+#include <string>
 #include <memory>
 #include <cstring>
 #include <unistd.h>
@@ -6,6 +8,8 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
+using std::vector;
+using std::string;
 using std::cerr;
 using std::cout;
 using std::unique_ptr;
@@ -15,6 +19,7 @@ using std::make_unique;
 
 const int port = 8080;
 const char ip[] = "127.0.0.1";
+//const char * flags = {"NORMAL_DATA", "SERVER_ACK", "SEND_URGENT_REQUEST", "SERVER_URGENT_ACK", "SERVER_NO_URGENT_DATA", "SERVER_UNKNOWN_COMMAND"};
 typedef struct Server_t{
     int client_fd;  // client file descriptor
     int server_fd;  // server file descriptor
@@ -69,14 +74,23 @@ int main(void){
                 cerr << "Failed to find client\n";
                 //continue; //? ser inte ut som det
             }
+            cout << "connected to client fd: " << s->client_fd << "\n";
         }
-        else{
-            int read_byte = recv(s->server_fd, &buffer, BUFFER_SIZE, 0);
-            if(read_byte < 0){
-                cerr << "Error read msg: " << read_byte << "\n";
-                continue;
-            }
-            cout << "MSG: " << read_byte << "\n";
+
+        int read_bytes = recv(s->client_fd, &buffer, sizeof(buffer), 0); //MSG_PEEK
+        if(read_bytes < 0){
+            cerr << "Error read msg: " << read_bytes << "\n";
+            return 0;
+        }
+        char *p;
+        p = strtok(buffer, ":");
+        if(!strcmp(buffer, "NORMAL_DATA")){
+            char *msg = strtok(NULL, ":");
+            cout << msg << "\n";
+            char flag[] = {"SERVER_ACK:"};
+            memset(&buffer, sizeof(buffer), 0);
+            strcpy(buffer, strcat(flag, msg));
+            send(s->client_fd, &buffer, sizeof(buffer), 0);
         }
 
     }
