@@ -1,0 +1,7 @@
+[
+{
+  "directory": "/workspaces/Network_repo/build",
+  "command": "/usr/bin/c++   -g -o CMakeFiles/client_sti.dir/src/client.cpp.o -c /workspaces/Network_repo/src/client.cpp",
+  "file": "/workspaces/Network_repo/src/client.cpp"
+}
+]

@@ -7,6 +7,7 @@
 
 #define PORT 8080
 #define BUFFER_SIZE 1024
+#define IP "172.16.217.188"
 
 using std::cerr;
 using std::cout;
@@ -28,7 +29,7 @@ int main(void){
     client_addr.sin_family = AF_INET;
     client_addr.sin_port = htons(PORT);
     // client_addr.sin_addr = "172.16.217.188";
-    inet_pton(AF_INET, "172.16.217.188", &client_addr.sin_addr);
+    inet_pton(AF_INET, IP, &client_addr.sin_addr);
 
     std::cout << "Connecting to server..." << std::endl;
     if (connect(client_fd, (struct sockaddr*)&client_addr, sizeof(client_addr)) < 0) {
