@@ -58,11 +58,17 @@ int main(void){
     struct sockaddr_in new_client;
     socklen_t client_len = sizeof(new_client);
 
-    while(true){    
-        s->client_fd = accept(s->server_fd, (struct sockaddr *)&new_client, &client_len);
-        if(s->client_fd < 0){
-            cerr << "Failed to find client\n";
-            //continue; //?
+    while(true){
+        if(s->client_fd == -1){    
+            s->client_fd = accept(s->server_fd, (struct sockaddr *)&new_client, &client_len);
+            if(s->client_fd < 0){
+                cerr << "Failed to find client\n";
+                //continue; //?
+            }
         }
+        else{
+            cout << "Bro fr fr";
+        }
+
     }
 }
