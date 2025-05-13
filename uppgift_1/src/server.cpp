@@ -11,6 +11,8 @@ using std::cout;
 using std::unique_ptr;
 using std::make_unique;
 
+#define BUFFER_SIZE 1024
+
 const int port = 8080;
 const char ip[] = "127.0.0.1";
 typedef struct Server_t{
@@ -58,17 +60,25 @@ int main(void){
     struct sockaddr_in new_client;
     socklen_t client_len = sizeof(new_client);
 
+    char buffer[BUFFER_SIZE] = {0};
+
     while(true){
         if(s->client_fd == -1){    
             s->client_fd = accept(s->server_fd, (struct sockaddr *)&new_client, &client_len);
             if(s->client_fd < 0){
                 cerr << "Failed to find client\n";
-                //continue; //?
+                //continue; //? ser inte ut som det
             }
         }
         else{
-            cout << "Bro fr fr";
+            int read_byte = recv(s->server_fd, buffer, BUFFER_SIZE, 0);
+            if(read_byte < 0){
+                cerr << "Error read msg: " << read_byte << "\n";
+                continue;
+            }
+            cout << "MSG: " << read_byte << "\n";
         }
 
     }
+    close(s->server_fd);
 }
