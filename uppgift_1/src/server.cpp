@@ -62,9 +62,9 @@ int main(void){
         exit(4);
     }
     cout << "Listening on port: " << port << "...\n";
+    
     struct sockaddr_in new_client;
     socklen_t client_len = sizeof(new_client);
-
     char buffer[BUFFER_SIZE] = {0};
 
     while(true){
@@ -72,17 +72,30 @@ int main(void){
             s->client_fd = accept(s->server_fd, (struct sockaddr *)&new_client, &client_len);
             if(s->client_fd < 0){
                 cerr << "Failed to find client\n";
-                //continue; //? ser inte ut som det
             }
             cout << "connected to client fd: " << s->client_fd << "\n";
         }
 
-        int read_bytes = recv(s->client_fd, &buffer, sizeof(buffer), 0); //MSG_PEEK
+        int read_bytes = recv(s->client_fd, &buffer, sizeof(buffer), 0); //?MSG_PEEK
+        // Cheak so that the server actually recived some code
         if(read_bytes < 0){
             cerr << "Error read msg: " << read_bytes << "\n";
             return 0;
         }
-        char *p;
+        cout << buffer << "\n";
+        if(!strcmp(buffer, "NORMAL_DATA:Hello")){
+            memset(&buffer, sizeof(buffer), 0);
+            strcpy(buffer, "SERVER_ACK:Hello");
+            send(s->client_fd, &buffer, sizeof(char) * sizeof(buffer), 0);
+        }
+
+    }
+    close(s->server_fd);
+}
+
+/*
+!Extra code which was fun to write, but not up to specs
+    char *p;
         p = strtok(buffer, ":");
         if(!strcmp(buffer, "NORMAL_DATA")){
             char *msg = strtok(NULL, ":");
@@ -92,7 +105,4 @@ int main(void){
             strcpy(buffer, strcat(flag, msg));
             send(s->client_fd, &buffer, sizeof(buffer), 0);
         }
-
-    }
-    close(s->server_fd);
-}
+*/
