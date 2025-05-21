@@ -45,7 +45,7 @@ int main(void){
         switch (ipt){
         case 1:
             memset(&buffer, sizeof(buffer), 0);
-            strcpy(buffer, "Hello Mario\n");
+            strcpy(buffer, "NORMAL_DATA:Hello");
             send(client_fd, buffer, sizeof(char) * sizeof(buffer), 0);
             break;
         
@@ -53,6 +53,7 @@ int main(void){
             memset(&buffer, sizeof(buffer), 0);
             strcpy(buffer, "NORMAL_DATA:Hello");
             send(client_fd, buffer, sizeof(char) * sizeof(buffer), 0);
+            break;
         }
         read(client_fd, &buffer, sizeof(buffer));
         cout << buffer << "\n";
