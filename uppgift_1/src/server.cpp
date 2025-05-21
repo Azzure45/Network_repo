@@ -1,5 +1,4 @@
 #include <iostream>
-#include <vector>
 #include <string>
 #include <memory>
 #include <cstring>
@@ -8,7 +7,6 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-using std::vector;
 using std::string;
 using std::cerr;
 using std::cout;
@@ -19,14 +17,24 @@ using std::make_unique;
 
 const int port = 8080;
 const char ip[] = "127.0.0.1";
-//const char * flags = {"NORMAL_DATA", "SERVER_ACK", "SEND_URGENT_REQUEST", "SERVER_URGENT_ACK", "SERVER_NO_URGENT_DATA", "SERVER_UNKNOWN_COMMAND"};
-typedef struct Server_t{
-    int client_fd;  // client file descriptor
-    int server_fd;  // server file descriptor
 
-    Server_t(void){ // constructor
-        this->client_fd=-1;
-        this->server_fd=-1;
+typedef struct Server_t{
+    int client_fd;                          // client file descriptor
+    int server_fd;                          // server file descriptor
+    char buffer[BUFFER_SIZE] = {0};         // message buffer
+    size_t buff_len;                        // buffer lenght
+
+    Server_t(void) : 
+    client_fd(-1),
+    server_fd(-1),
+    buff_len(sizeof(buffer)) // constructor
+    {
+    }
+
+    void send_msg(const char * txt, int flag){ // handels sending messages to client
+        memset(&buffer, sizeof(buffer), 0);
+        strcpy(buffer, txt);
+        send(client_fd, &buffer, buff_len, flag);
     }
 }Server_t;
 
@@ -62,27 +70,57 @@ int main(void){
         exit(4);
     }
     cout << "Listening on port: " << port << "...\n";
+    
     struct sockaddr_in new_client;
     socklen_t client_len = sizeof(new_client);
-
-    char buffer[BUFFER_SIZE] = {0};
-
+    int read_bytes = 0;
     while(true){
         if(s->client_fd == -1){    
             s->client_fd = accept(s->server_fd, (struct sockaddr *)&new_client, &client_len);
             if(s->client_fd < 0){
                 cerr << "Failed to find client\n";
-                //continue; //? ser inte ut som det
             }
             cout << "connected to client fd: " << s->client_fd << "\n";
         }
 
-        int read_bytes = recv(s->client_fd, &buffer, sizeof(buffer), 0); //MSG_PEEK
+        read_bytes = recv(s->client_fd, &s->buffer, s->buff_len, 0); //?MSG_PEEK
+        // Cheak so that the server actually recived some data
         if(read_bytes < 0){
             cerr << "Error read msg: " << read_bytes << "\n";
             return 0;
         }
-        char *p;
+        cout << s->buffer << "\n";
+        if(!strcmp(s->buffer, "NORMAL_DATA:Hello")){
+            s->send_msg("SERVER_ACK:Hello", 0);
+        }
+        else if(!strcmp(s->buffer, "SEND_URGENT_REQUEST")){
+            char oob_byte[] = {0};
+            read_bytes = recv(s->client_fd, &oob_byte, 1, MSG_OOB);
+            if(read_bytes < 0){
+                s->send_msg("SERVER_NO_URGENT_DATA", 0);
+                return 0;
+            }
+            const char *tmp_txt = "SERVER_URGENT_ACK:";
+            char *msg = (char *)calloc(sizeof(char), (strlen(tmp_txt)+strlen(oob_byte)+1));
+            if(msg == NULL){
+                cout << "Could not allocate memory\n";
+                return 0;
+            }
+            strcat(msg, tmp_txt);
+            strcat(msg, oob_byte);
+            s->send_msg(msg, 0);
+            free(msg);        
+        }
+        else{
+            s->send_msg("SERVER_UNKNOWN_COMMAND", 0);
+        }
+    }
+    close(s->server_fd);
+}
+
+/*
+!Extra code which was fun to write, but not up to specs
+    char *p;
         p = strtok(buffer, ":");
         if(!strcmp(buffer, "NORMAL_DATA")){
             char *msg = strtok(NULL, ":");
@@ -92,7 +130,4 @@ int main(void){
             strcpy(buffer, strcat(flag, msg));
             send(s->client_fd, &buffer, sizeof(buffer), 0);
         }
-
-    }
-    close(s->server_fd);
-}
+*/
